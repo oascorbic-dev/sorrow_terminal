@@ -48,7 +48,7 @@
 
     const commands = {
       help: "Available commands: help, about, ls, cat [file], clear",
-      about: "digital sorrow terminal v1.2\ncreated for aesthetic experiments.",
+      about: "digital sorrow terminal v1.3\ncreated for aesthetic experiments.",
       ls: Object.keys(files).join("\n"),
       clear: "CLEAR_SCREEN"
     };
@@ -57,8 +57,29 @@
     let inputLine;
     let cursor;
 
+    function scrollToBottom() {
+      window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function typeOutput(text, callback) {
+      const output = document.createElement("div");
+      terminal.appendChild(output);
+
+      let i = 0;
+      function typeChar() {
+        if (i < text.length) {
+          output.textContent += text[i];
+          i++;
+          scrollToBottom();
+          setTimeout(typeChar, 20); // скорость печати
+        } else if (callback) {
+          callback();
+        }
+      }
+      typeChar();
+    }
+
     function newLine() {
-      // удаляем старый курсор, если есть
       if (cursor) cursor.remove();
 
       inputLine = document.createElement("div");
@@ -69,7 +90,7 @@
       inputLine.appendChild(cursor);
 
       terminal.appendChild(inputLine);
-      window.scrollTo(0, document.body.scrollHeight);
+      scrollToBottom();
     }
 
     function handleCommand(cmd) {
@@ -79,26 +100,21 @@
 
       if (base === "cat" && arg) {
         if (files[arg]) {
-          const output = document.createElement("div");
-          output.textContent = files[arg];
-          terminal.appendChild(output);
+          typeOutput(files[arg], newLine);
         } else {
-          const output = document.createElement("div");
-          output.textContent = "No such file: " + arg;
-          terminal.appendChild(output);
+          typeOutput("No such file: " + arg, newLine);
         }
       } else if (commands[base]) {
         if (commands[base] === "CLEAR_SCREEN") {
           terminal.innerHTML = "";
+          newLine();
         } else {
-          const output = document.createElement("div");
-          output.textContent = commands[base];
-          terminal.appendChild(output);
+          typeOutput(commands[base], newLine);
         }
       } else if (cmd.trim() !== "") {
-        const output = document.createElement("div");
-        output.textContent = "Unknown command: " + cmd;
-        terminal.appendChild(output);
+        typeOutput("Unknown command: " + cmd, newLine);
+      } else {
+        newLine();
       }
     }
 
@@ -109,20 +125,18 @@
       if (e.key.length === 1 && !e.ctrlKey) {
         input += e.key;
         inputSpan.textContent = input;
+        scrollToBottom();
       } else if (e.key === "Backspace") {
         input = input.slice(0, -1);
         inputSpan.textContent = input;
+        scrollToBottom();
       } else if (e.key === "Enter") {
         handleCommand(input.trim());
         input = "";
-        newLine();
       }
-
-      // автоскролл вниз
-      window.scrollTo(0, document.body.scrollHeight);
     });
 
-    // старт
+    // запуск
     newLine();
   </script>
 </body>
