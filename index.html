@@ -11,6 +11,7 @@
       font-family: monospace;
       padding: 20px;
       font-size: 1.1em;
+      margin: 0;
     }
     #terminal {
       white-space: pre-wrap;
@@ -47,18 +48,26 @@
 
     const commands = {
       help: "Available commands: help, about, ls, cat [file], clear",
-      about: "digital sorrow terminal v1.1\ncreated for aesthetic experiments.",
+      about: "digital sorrow terminal v1.2\ncreated for aesthetic experiments.",
       ls: Object.keys(files).join("\n"),
       clear: "CLEAR_SCREEN"
     };
 
     let input = "";
     let inputLine;
+    let cursor;
 
     function newLine() {
+      // удаляем старый курсор, если есть
+      if (cursor) cursor.remove();
+
       inputLine = document.createElement("div");
       inputLine.className = "input-line";
-      inputLine.innerHTML = `<span class="prompt">></span><span id="input"></span><span class="cursor"></span>`;
+      inputLine.innerHTML = `<span class="prompt">></span><span id="input"></span>`;
+      cursor = document.createElement("span");
+      cursor.className = "cursor";
+      inputLine.appendChild(cursor);
+
       terminal.appendChild(inputLine);
       window.scrollTo(0, document.body.scrollHeight);
     }
@@ -108,9 +117,12 @@
         input = "";
         newLine();
       }
+
+      // автоскролл вниз
+      window.scrollTo(0, document.body.scrollHeight);
     });
 
-    // стартовая строка
+    // старт
     newLine();
   </script>
 </body>
