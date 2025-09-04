@@ -48,13 +48,13 @@
 
     const commands = {
       help: "Available commands: help, about, ls, cat [file], clear",
-      about: "digital sorrow terminal v1.3\ncreated for aesthetic experiments.",
+      about: "digital sorrow terminal v1.4\ncreated for aesthetic experiments.",
       ls: Object.keys(files).join("\n"),
       clear: "CLEAR_SCREEN"
     };
 
     let input = "";
-    let inputLine;
+    let inputSpan;
     let cursor;
 
     function scrollToBottom() {
@@ -82,14 +82,20 @@
     function newLine() {
       if (cursor) cursor.remove();
 
-      inputLine = document.createElement("div");
-      inputLine.className = "input-line";
-      inputLine.innerHTML = `<span class="prompt">></span><span id="input"></span>`;
+      const line = document.createElement("div");
+      line.className = "input-line";
+      const prompt = document.createElement("span");
+      prompt.className = "prompt";
+      prompt.textContent = ">";
+      inputSpan = document.createElement("span");
+      inputSpan.id = "input";
       cursor = document.createElement("span");
       cursor.className = "cursor";
-      inputLine.appendChild(cursor);
 
-      terminal.appendChild(inputLine);
+      line.appendChild(prompt);
+      line.appendChild(inputSpan);
+      line.appendChild(cursor);
+      terminal.appendChild(line);
       scrollToBottom();
     }
 
@@ -119,7 +125,6 @@
     }
 
     document.addEventListener("keydown", (e) => {
-      const inputSpan = document.getElementById("input");
       if (!inputSpan) return;
 
       if (e.key.length === 1 && !e.ctrlKey) {
@@ -131,13 +136,17 @@
         inputSpan.textContent = input;
         scrollToBottom();
       } else if (e.key === "Enter") {
+        // зафиксировать введённую строку
+        cursor.remove();
+        inputSpan.removeAttribute("id");
+
         handleCommand(input.trim());
         input = "";
       }
     });
 
-    // запуск
-    newLine();
+    // приветственная заставка
+    typeOutput("digital sorrow terminal v1.4\nType 'help' for available commands.\n", newLine);
   </script>
 </body>
 </html>
